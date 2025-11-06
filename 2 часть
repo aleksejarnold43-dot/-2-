@@ -1,0 +1,204 @@
+using System;
+using System.Collections.Generic;
+
+namespace TechHierarchy
+{
+    // Интерфейс для подключаемых устройств
+    interface IConnectable
+    {
+        void Connect();
+    }
+
+    // Абстрактный базовый класс "Товар"
+    abstract class Product
+    {
+        public string Name { get; set; }
+        public double Price { get; set; }
+
+        protected Product(string name, double price)
+        {
+            Name = name;
+            Price = price;
+        }
+
+        // Виртуальный метод
+        public virtual void ShowInfo()
+        {
+            Console.WriteLine($"Товар: {Name}, цена: {Price}₽");
+        }
+
+        // Переопределение ToString()
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, Цена: {Price}₽";
+        }
+    }
+
+    // Класс "Техника", наследует Product и реализует IConnectable
+    class Appliance : Product, IConnectable
+    {
+        public string Brand { get; set; }
+
+        public Appliance(string name, double price, string brand)
+            : base(name, price)
+        {
+            Brand = brand;
+        }
+
+        // Реализация интерфейса
+        public virtual void Connect()
+        {
+            Console.WriteLine($"{Brand} {Name} подключено к сети.");
+        }
+
+        // Переопределим все методы Object
+        public override bool Equals(object obj)
+        {
+            if (obj is Appliance other)
+                return Name == other.Name && Brand == other.Brand && Price == other.Price;
+            return false;
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Name, Brand, Price);
+
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, Бренд: {Brand}, Цена: {Price}₽";
+        }
+
+        public override void ShowInfo()
+        {
+            Console.WriteLine($"Техника: {Brand} {Name}, цена: {Price}₽");
+        }
+    }
+
+    // Класс "Печатающее устройство"
+    class PrintingDevice : Appliance
+    {
+        public int PagesPerMinute { get; set; }
+
+        public PrintingDevice(string name, double price, string brand, int ppm)
+            : base(name, price, brand)
+        {
+            PagesPerMinute = ppm;
+        }
+
+        public virtual void Print()
+        {
+            Console.WriteLine($"{Brand} {Name} печатает со скоростью {PagesPerMinute} стр/мин.");
+        }
+
+        public override void ShowInfo()
+        {
+            Console.WriteLine($"Печатающее устройство: {Brand} {Name}, {PagesPerMinute} стр/мин, цена {Price}₽");
+        }
+
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, Бренд: {Brand}, Скорость: {PagesPerMinute} стр/мин, Цена: {Price}₽";
+        }
+    }
+
+    // Класс "Сканер" — бесплодный (sealed)
+    sealed class Scanner : PrintingDevice
+    {
+        public int Dpi { get; set; }
+
+        public Scanner(string name, double price, string brand, int ppm, int dpi)
+            : base(name, price, brand, ppm)
+        {
+            Dpi = dpi;
+        }
+
+        public void Scan()
+        {
+            Console.WriteLine($"{Brand} {Name} сканирует изображение в {Dpi} dpi.");
+        }
+
+        public override void ShowInfo()
+        {
+            Console.WriteLine($"Сканер: {Brand} {Name}, {Dpi} dpi, цена {Price}₽");
+        }
+
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, DPI: {Dpi}, Цена: {Price}₽";
+        }
+    }
+
+    // Класс "Компьютер"
+    class Computer : Appliance
+    {
+        public string Processor { get; set; }
+
+        public Computer(string name, double price, string brand, string processor)
+            : base(name, price, brand)
+        {
+            Processor = processor;
+        }
+
+        public virtual void Boot()
+        {
+            Console.WriteLine($"{Brand} {Name} запускается на процессоре {Processor}.");
+        }
+
+        public override void ShowInfo()
+        {
+            Console.WriteLine($"Компьютер: {Brand} {Name}, процессор {Processor}, цена {Price}₽");
+        }
+
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, Процессор: {Processor}, Цена: {Price}₽";
+        }
+    }
+
+    // Класс "Планшет"
+    class Tablet : Computer
+    {
+        public double ScreenSize { get; set; }
+
+        public Tablet(string name, double price, string brand, string processor, double screenSize)
+            : base(name, price, brand, processor)
+        {
+            ScreenSize = screenSize;
+        }
+
+        public override void Boot()
+        {
+            Console.WriteLine($"{Brand} {Name} включается — экран {ScreenSize}\".");
+        }
+
+        public override void ShowInfo()
+        {
+            Console.WriteLine($"Планшет: {Brand} {Name}, экран {ScreenSize}\" , процессор {Processor}, цена {Price}₽");
+        }
+
+        public override string ToString()
+        {
+            return $"Тип: {GetType().Name}, Название: {Name}, Экран: {ScreenSize}\", Цена: {Price}₽";
+        }
+    }
+
+    // Демонстрационная программа
+    class Program
+    {
+        static void Main()
+        {
+            Product[] items = new Product[]
+            {
+                new PrintingDevice("HP LaserJet", 15000, "HP", 20),
+                new Scanner("Canon ScanX", 10000, "Canon", 10, 600),
+                new Computer("Asus VivoBook", 60000, "Asus", "Intel i5"),
+                new Tablet("iPad", 70000, "Apple", "M2", 11)
+            };
+
+            foreach (var item in items)
+            {
+                Console.WriteLine(item.ToString());
+                item.ShowInfo();
+                Console.WriteLine();
+            }
+        }
+    }
+}
