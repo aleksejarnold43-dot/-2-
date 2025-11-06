@@ -1,0 +1,181 @@
+using System;
+
+namespace ConsoleApp17
+{
+    public class OneDimArray
+    {
+        private int[] arr;
+
+        // Конструктор по размеру
+        public OneDimArray(int size)
+        {
+            arr = new int[size];
+        }
+
+        // Конструктор с инициализацией
+        public OneDimArray(int[] source)
+        {
+            arr = new int[source.Length];
+            for (int i = 0; i < source.Length; i++)
+                arr[i] = source[i];
+        }
+
+        // Индексатор
+        public int this[int index]
+        {
+            get { return arr[index]; }
+            set { arr[index] = value; }
+        }
+
+        // Свойство для получения размера массива
+        public int Length
+        {
+            get { return arr.Length; }
+        }
+
+        // Перегрузка оператора *
+        public static OneDimArray operator *(OneDimArray a, OneDimArray b)
+        {
+            int len = Math.Min(a.Length, b.Length);
+            int[] result = new int[len];
+            for (int i = 0; i < len; i++)
+                result[i] = a[i] * b[i];
+            return new OneDimArray(result);
+        }
+
+        // Перегрузка оператора true — истина, если нет отрицательных элементов
+        public static bool operator true(OneDimArray a)
+        {
+            foreach (int val in a.arr)
+                if (val < 0) return false;
+            return true;
+        }
+
+        public static bool operator false(OneDimArray a)
+        {
+            foreach (int val in a.arr)
+                if (val < 0) return false;
+            return true;
+        }
+
+        // Приведение типа к int — возвращает размер массива
+        public static explicit operator int(OneDimArray a)
+        {
+            return a.Length;
+        }
+
+        // Проверка на равенство
+        public static bool operator ==(OneDimArray a, OneDimArray b)
+        {
+            if (a.Length != b.Length) return false;
+            for (int i = 0; i < a.Length; i++)
+                if (a[i] != b[i]) return false;
+            return true;
+        }
+
+        public static bool operator !=(OneDimArray a, OneDimArray b)
+        {
+            return !(a == b);
+        }
+
+        // Сравнение: меньше — если сумма элементов меньше
+        public static bool operator <(OneDimArray a, OneDimArray b)
+        {
+            int sumA = 0, sumB = 0;
+            foreach (int x in a.arr) sumA += x;
+            foreach (int x in b.arr) sumB += x;
+            return sumA < sumB;
+        }
+
+        public static bool operator >(OneDimArray a, OneDimArray b)
+        {
+            int sumA = 0, sumB = 0;
+            foreach (int x in a.arr) sumA += x;
+            foreach (int x in b.arr) sumB += x;
+            return sumA > sumB;
+        }
+
+        // Метод вывода
+        public void Print()
+        {
+            Console.WriteLine(string.Join(" ", arr));
+        }
+    }
+
+  
+    public static class Extensions
+    {
+        // Метод расширения для string — проверка на наличие символа
+        public static bool ContainsSymbol(this string str, char symbol)
+        {
+            foreach (char c in str)
+                if (c == symbol)
+                    return true;
+            return false;
+        }
+
+        // Метод расширения для OneDimArray — удаление отрицательных элементов
+        public static OneDimArray RemoveNegatives(this OneDimArray array)
+        {
+            int count = 0;
+            for (int i = 0; i < array.Length; i++)
+                if (array[i] >= 0)
+                    count++;
+
+            int[] newArr = new int[count];
+            int index = 0;
+            for (int i = 0; i < array.Length; i++)
+                if (array[i] >= 0)
+                    newArr[index++] = array[i];
+
+            return new OneDimArray(newArr);
+        }
+    }
+
+    // ------------------- ПРОГРАММА ТЕСТИРОВАНИЯ -------------------
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("=== Тестирование класса OneDimArray ===");
+
+            int[] arr1 = { 1, 2, 3, 4 };
+            int[] arr2 = { 2, -2, 3, 5 };
+
+            OneDimArray a = new OneDimArray(arr1);
+            OneDimArray b = new OneDimArray(arr2);
+
+            Console.Write("Массив A: ");
+            a.Print();
+
+            Console.Write("Массив B: ");
+            b.Print();
+
+            Console.WriteLine("\nПерегрузка * (умножение):");
+            OneDimArray c = a * b;
+            c.Print();
+
+            Console.WriteLine("\nПроверка true (нет отрицательных элементов):");
+            Console.WriteLine(a ? "A не содержит отрицательных" : "A содержит отрицательные");
+            Console.WriteLine(b ? "B не содержит отрицательных" : "B содержит отрицательные");
+
+            Console.WriteLine("\nПриведение к int (размер массива):");
+            Console.WriteLine($"Размер A = {(int)a}");
+
+            Console.WriteLine("\nПроверка равенства (==):");
+            Console.WriteLine(a == b ? "A и B равны" : "A и B не равны");
+
+            Console.WriteLine("\nСравнение по сумме (<):");
+            Console.WriteLine(a < b ? "A < B" : "A >= B");
+
+            Console.WriteLine("\nУдаление отрицательных элементов из B:");
+            OneDimArray bPositive = b.RemoveNegatives();
+            bPositive.Print();
+
+            Console.WriteLine("\nМетод расширения для string:");
+            string s = "Привет, мир!";
+            Console.WriteLine($"Строка: {s}");
+            Console.WriteLine($"Содержит ли символ 'м'? {s.ContainsSymbol('м')}");
+        }
+    }
+}
